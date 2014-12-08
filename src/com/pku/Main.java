@@ -1,5 +1,7 @@
 package com.pku;
-import com.pku.Segmenter;
+
+import java.util.Scanner;
+
 /** This is a very simple demo of calling the Chinese Word Segmenter
  *  programmatically.  It assumes an input file in UTF8.
  *  <p/>
@@ -15,10 +17,17 @@ import com.pku.Segmenter;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        Object obj = Segmenter.segment("周鲁东出生于哪一年");
-        Object obj2 = Segmenter.segment("钟高浩出生于哪一年");
-        System.out.println(obj.toString());
-        System.out.println(obj2.toString());
+        Segmenter.prepare();
+        System.out.println("请输入要查询的问题,退出输入bye");
+        Scanner sca = new Scanner(System.in);
+        String s = sca.next();
+        while (!s.equals("bye")) {
+            Question q = new Question(s);
+            Answerer.answer(q);
+            System.out.println(q.getAnswer());
+            System.out.println("请输入下一个问题，退出输入bye");
+            s = sca.next();
+        }
     }
 
 
