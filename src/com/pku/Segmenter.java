@@ -40,8 +40,12 @@ public class Segmenter {
     }
     public static List segment(Question q)
     {
+        return segment(q.getSentence());
+    }
+    public static List segment(String s)
+    {
         //System.setOut(new PrintStream(System.out, true, "utf-8"));
-        List<String> segmented = ssegmenter.segmentString(q.getSentence());
+        List<String> segmented = ssegmenter.segmentString(s);
 //        System.out.println(segmented);
 
         MaxentTagger tagger = new MaxentTagger("stanford_postagger/models/chinese-distsim.tagger");
