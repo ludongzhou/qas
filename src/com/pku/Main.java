@@ -18,6 +18,7 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) throws Exception {
         Segmenter.prepare();
+        Searcher.createIndex();
         System.out.println("请输入要查询的问题,退出输入bye");
         Scanner sca = new Scanner(System.in);
         String s = sca.next();

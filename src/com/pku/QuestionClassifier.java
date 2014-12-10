@@ -43,7 +43,7 @@ public class QuestionClassifier {
         String sentence = q.getSentence();
         if (sentence.contains("谁") || sentence.contains("什么人") || sentence.contains("哪个人"))
             return 0;
-        if (sentence.contains("哪儿") || sentence.contains("什么地方") || sentence.contains("何处"))
+        if (sentence.contains("哪儿") || sentence.contains("什么地方") || sentence.contains("何处")||sentence.contains("哪里")||sentence.contains("哪个"))
             return 1;
         if (sentence.contains("多少") || sentence.contains("几"))
             return 2;

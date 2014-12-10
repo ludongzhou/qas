@@ -58,7 +58,6 @@ public class XmlHandler {
                 }
                 docList.add(doc);
             }
-            System.out.println("解析完毕");
             return docList;
         } catch (FileNotFoundException e) {
             System.out.println(e.getMessage());
