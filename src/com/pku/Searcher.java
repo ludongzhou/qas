@@ -17,11 +17,13 @@ import org.apache.lucene.search.highlight.SimpleFragmenter;
 import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.search.highlight.Highlighter;
+import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
 
 import javax.print.Doc;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,13 +39,28 @@ public class Searcher {
             // Store the index in memory:
             directory = new RAMDirectory();
             // To store an index on disk, use this instead:
-            //Directory directory = FSDirectory.open(new File("./1002"));
+            //Directory directory = FSDirectory.open(new File("./index"));
             IndexWriterConfig config = new IndexWriterConfig(Version.LATEST, analyzer);
             IndexWriter iwriter = new IndexWriter(directory, config);
             //File test = new File("test.txt");
-            List<Document> list = XmlHandler.parserXml("/Users/ember/Downloads/test.xml");
-            for (Document doc : list)
-                iwriter.addDocument(doc);
+            System.out.println("正在解析XML文件");
+            File dir = new File("/Users/ludongzhou/Desktop/new");
+            String wikis[] = dir.list();
+            int length = wikis.length;
+            length = length>10?10:length;
+            //System.out.println("******"+length);
+            int rate = 0;
+            for (int i = 0; i < length ; i++) {//
+                if(rate!=i*100/length) {
+                    rate = i * 100 / length;
+                    System.out.println("解析完成:" + rate + "%");
+                }
+                List<Document> list = XmlHandler.parserXml("/Users/ludongzhou/Desktop/new/"+wikis[i]);
+                for (Document doc : list)
+                    iwriter.addDocument(doc);
+            }
+
+            System.out.println("解析XML完成");
             iwriter.close();
         }
         catch (Exception e)
@@ -53,8 +70,9 @@ public class Searcher {
 
 
     }
-    public static void search(String key)
+    public static List<String> search(String key)
     {
+        List<String> l = new ArrayList<String>();
         try {
             // Now search the index:
             DirectoryReader ireader = DirectoryReader.open(directory);
@@ -67,21 +85,26 @@ public class Searcher {
             SimpleHTMLFormatter simpleHtmlFormatter = new SimpleHTMLFormatter("", "");//设定高亮显示的格式，也就是对高亮显示的词组加上前缀后缀
             Highlighter highlighter = new Highlighter(simpleHtmlFormatter, new QueryScorer(query));
             highlighter.setTextFragmenter(new SimpleFragmenter(100));
-            for (int i = 0; i < hits.length; i++) {
+            //System.out.println("the searched length is "+hits.length);
+            for (int i = 0; i < hits.length && i < 10; i++) {
                 Document hitDoc = isearcher.doc(hits[i].doc);
                 //System.out.println(hitDoc.get("text"));
                 TokenStream tokenStream = analyzer.tokenStream("", new StringReader(hitDoc.get("text")));
                 String str = highlighter.getBestFragment(tokenStream, hitDoc.get("text"));
-                System.out.println(str);
-                System.out.println("score:" + hits[i].score);
-                System.out.println("================================================");
+                //System.out.println(str);
+                l.add(str);
+                //System.out.println(l.toString()+"shit");
+                //System.out.println("score:" + hits[i].score);
+                //System.out.println("================================================");
             }
             ireader.close();
-            directory.close();
+            //directory.close();
         }
         catch (Exception e)
         {
             System.out.println(e.getMessage());
         }
+        System.out.println(l.size());
+        return l;
     }
 }
