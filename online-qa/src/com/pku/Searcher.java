@@ -1,10 +1,9 @@
 package com.pku;
+
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
@@ -12,17 +11,15 @@ import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.SimpleFragmenter;
 import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.search.highlight.Highlighter;
-import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
 
-import javax.print.Doc;
-import java.io.*;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +29,7 @@ import java.util.List;
 public class Searcher {
     static Analyzer analyzer;
     static Directory directory;
+    static String xmlpath = "/Users/ember/Downloads/special.xml";
     public static void createIndex()
     {
         try {
@@ -44,21 +42,10 @@ public class Searcher {
             IndexWriter iwriter = new IndexWriter(directory, config);
             //File test = new File("test.txt");
             System.out.println("正在解析XML文件");
-            File dir = new File("/Users/ludongzhou/Desktop/new");
-            String wikis[] = dir.list();
-            int length = wikis.length;
-            length = length>10?10:length;
-            //System.out.println("******"+length);
-            int rate = 0;
-            for (int i = 0; i < length ; i++) {//
-                if(rate!=i*100/length) {
-                    rate = i * 100 / length;
-                    System.out.println("解析完成:" + rate + "%");
-                }
-                List<Document> list = XmlHandler.parserXml("/Users/ludongzhou/Desktop/new/"+wikis[i]);
-                for (Document doc : list)
-                    iwriter.addDocument(doc);
-            }
+
+            List<Document> list = XmlHandler.parserSpecial(xmlpath);
+            for (Document doc : list)
+                iwriter.addDocument(doc);
 
             System.out.println("解析XML完成");
             iwriter.close();
@@ -70,9 +57,9 @@ public class Searcher {
 
 
     }
-    public static List<String> search(String key)
+    public static List<ScoredSnips> search(String key)
     {
-        List<String> l = new ArrayList<String>();
+        List<ScoredSnips> l = new ArrayList<ScoredSnips>();
         try {
             // Now search the index:
             DirectoryReader ireader = DirectoryReader.open(directory);
@@ -92,7 +79,7 @@ public class Searcher {
                 TokenStream tokenStream = analyzer.tokenStream("", new StringReader(hitDoc.get("text")));
                 String str = highlighter.getBestFragment(tokenStream, hitDoc.get("text"));
                 //System.out.println(str);
-                l.add(str);
+                l.add(new ScoredSnips(str, hits[i].score));
                 //System.out.println(l.toString()+"shit");
                 //System.out.println("score:" + hits[i].score);
                 //System.out.println("================================================");
@@ -104,7 +91,16 @@ public class Searcher {
         {
             System.out.println(e.getMessage());
         }
-        System.out.println(l.size());
         return l;
+    }
+}
+
+class ScoredSnips{
+    public float score;
+    public String snips;
+    ScoredSnips(String str,float f)
+    {
+        snips = str;
+        score = f;
     }
 }

@@ -70,4 +70,37 @@ public class XmlHandler {
         }
         return docList;
     }
+    public static List<String> parseQuestion(String fileName)
+    {
+        List<String> questionList = new ArrayList<>();
+        try {
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            org.w3c.dom.Document document = db.parse(fileName);
+            NodeList questions = document.getDocumentElement().getChildNodes();
+            for (int i = 0; i < questions.getLength(); i++) {
+                Node question = questions.item(i);
+                if (!question.getNodeName().equals("question"))
+                    continue;
+                NodeList paragraph = question.getChildNodes();
+                for (int j = 0; j < paragraph.getLength(); j++) {
+                    Node node = paragraph.item(j);
+                    if (node.getNodeName().equals("q"))
+                    {
+                        questionList.add(node.getTextContent());
+                    }
+                }
+            }
+            return questionList;
+        } catch (FileNotFoundException e) {
+            System.out.println(e.getMessage());
+        } catch (ParserConfigurationException e) {
+            System.out.println(e.getMessage());
+        } catch (SAXException e) {
+            System.out.println(e.getMessage());
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+        return questionList;
+    }
 }

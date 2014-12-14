@@ -16,3 +16,7 @@ solr-*
 Question*
 .idea
 lucene*
+classes
+deep-qa
+logs
+target
